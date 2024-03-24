@@ -18,27 +18,33 @@ If the given ‘POINTS’ array is [[1,2,5], [3 ,1 ,1] ,[3,3,3] ],the answer wil
 11 as 5 + 3 + 3.
 */
 
-int f(int day, std::vector<std::vector<int>> &points, int lastWorkout) {
+int f(int day, std::vector<std::vector<int>> &points, int lastWorkout,
+      std::vector<std::vector<int>> &dp) {
   int max = 0;
   if (day == 0) {
-    for (int i = 0; i < points[day].size(); ++i) {
-      if (lastWorkout != i) {
-        max = std::max(max, points[day][i]);
+    for (int task = 0; task < points[day].size(); ++task) {
+      if (lastWorkout != task) {
+        max = std::max(max, points[day][task]);
       }
     }
     return max;
   }
+  if (dp[day][lastWorkout] != -1) {
+    return dp[day][lastWorkout];
+  }
 
-  for (int i = 0; i < points[day].size(); ++i) {
-    if (i != lastWorkout) {
-      max = std::max(max, points[day][i] + f(day - 1, points, i));
+  for (int task = 0; task < points[day].size(); ++task) {
+    if (task != lastWorkout) {
+      max = std::max(max, points[day][task] + f(day - 1, points, task, dp));
     }
   }
-  return max;
+  return dp[day][lastWorkout] = max;
 }
 
 int ninjaTraining(int n, std::vector<std::vector<int>> &points) {
-  return f(n - 1, points, points[n - 1].size());
+  std::vector<std::vector<int>> dp(n,
+                                   std::vector<int>(points[0].size() + 1, -1));
+  return f(n - 1, points, points[n - 1].size(), dp);
 }
 int main() {
   std::vector<std::vector<int>> points{{1, 2, 5}, {3, 1, 1}, {3, 3, 3}};
